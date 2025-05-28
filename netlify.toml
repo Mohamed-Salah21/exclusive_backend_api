@@ -1,0 +1,8 @@
+[build]
+  functions = "functions"
+  publish = "public" # optional if you're deploying frontend too
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/server/:splat"
+  status = 200
