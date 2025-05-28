@@ -1,0 +1,74 @@
+import { NextFunction, Request, Response } from "express";
+import User from "../user/user.model";
+import ApiError from "../../utils/ApiError";
+import ApiResponse from "../../utils/ApiResponse";
+import { Messages } from "../../common/responseMessages";
+import { StatusCodes } from "http-status-codes";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+class AuthController {
+  async signup(request: Request, response: Response, next: NextFunction) {
+    const user: any = await User.findOne({
+      email: request.body.email,
+    }).select("+password");
+    if (user) {
+      return next(
+        new ApiError(Messages.Auth.SIGNUP_FAILED, StatusCodes.NOT_FOUND)
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      request.body.password,
+      Number(process.env.HASH_SALT)
+    );
+    delete request.body.rePassword;
+    const document = await User.create({
+      ...request.body,
+      password: hashedPassword,
+    });
+    let configMsg = Messages.Auth.SIGNUP_SUCCESS.split(",");
+    const msg = configMsg[0] + " " + request.body.name + configMsg[1];
+
+    document.save();
+    const token = jwt.sign(
+      { userId: document._id },
+      `${process.env.JWT_SECRET_CODE}`,
+      {
+        expiresIn: process.env.JWT_EXPIRE_TOKEN as any,
+      }
+    );
+    ApiResponse(response, msg, {
+      token,
+      user: document,
+    });
+  }
+  async signin(request: Request, response: Response, next: NextFunction) {
+    const user: any = await User.findOne({
+      email: request.body.email,
+    }).select("+password");
+    const isMatchPass = await bcrypt.compare(
+      request.body.password,
+      user?.password || ""
+    );
+    if (!user || !isMatchPass) {
+      return next(
+        new ApiError(Messages.Auth.SIGNIN_FAILED, StatusCodes.NOT_FOUND)
+      );
+    }
+    const token = jwt.sign(
+      { userId: user._id },
+      `${process.env.JWT_SECRET_CODE}`,
+      {
+        expiresIn: process.env.JWT_EXPIRE_TOKEN as any,
+      }
+    );
+    let configMsg = Messages.Auth.SIGNIN_SUCCESS.split(",");
+    const msg = configMsg[0] + " " + user.name + configMsg[1];
+    ApiResponse(response, msg, {
+      token,
+      user,
+    });
+  }
+}
+export default new AuthController();
