@@ -7,6 +7,7 @@ import { Messages } from "../../common/responseMessages";
 import { StatusCodes } from "http-status-codes";
 import ApiResponse from "../../utils/ApiResponse";
 import Product from "../product/product.model";
+import userService from "../user/user.service";
 
 class CartController {
   async getUserCart(request: Request, response: Response, next: NextFunction) {
@@ -31,8 +32,11 @@ class CartController {
       return;
     }
     const totalPrice = await (Cart as any).calcTotalPrice(userCart);
+    const cartItemsCount: any = await userService.getMyCartItemsCount(
+      (request as AuthenticatedRequest).user._id
+    );
     ApiResponse(response, Messages.Cart.GET_ALL_SUCCESS, {
-      numOfCartItems: userCart.products.length,
+      numOfCartItems: cartItemsCount,
       data: {
         cartId: userCart._id,
         totalCartPrice: totalPrice,
@@ -62,8 +66,11 @@ class CartController {
     });
     const cart = await buildCart;
     const totalPrice = await (Cart as any).calcTotalPrice(cart);
+    const cartItemsCount: any = await userService.getMyCartItemsCount(
+      (request as AuthenticatedRequest).user._id
+    );
     ApiResponse(response, Messages.Cart.ADD_ITEM_SUCCESS, {
-      numOfCartItems: cart.products.length,
+      numOfCartItems: cartItemsCount,
       data: {
         cartId: cart._id,
         totalCartPrice: totalPrice,
@@ -100,8 +107,11 @@ class CartController {
       const totalPrice = await (Cart as any).calcTotalPrice(userCart);
       userCart.totalCartPrice = totalPrice;
       userCart.save();
+      const cartItemsCount: any = await userService.getMyCartItemsCount(
+        (request as AuthenticatedRequest).user._id
+      );
       ApiResponse(response, Messages.Cart.UPDATE_QTY_SUCCESS, {
-        numOfCartItems: userCart.products.length,
+        numOfCartItems: cartItemsCount,
         data: {
           cartId: userCart._id,
           totalCartPrice: userCart.totalCartPrice,
@@ -124,8 +134,11 @@ class CartController {
         new ApiErrorr(Messages.Cart.REMOVE_ITEM_FAILED, StatusCodes.NOT_FOUND)
       );
     }
+    const cartItemsCount: any = await userService.getMyCartItemsCount(
+      (request as AuthenticatedRequest).user._id
+    );
     ApiResponse(response, Messages.Cart.REMOVE_ITEM_SUCCESS, {
-      numOfCartItems: userCart.products.length,
+      numOfCartItems: cartItemsCount,
       data: {
         cartId: userCart._id,
         totalCartPrice: userCart.totalCartPrice,

@@ -13,6 +13,9 @@ type Data = {
     numberOfPages: number;
   };
   numOfCartItems?: number;
+  userWishlistItemsIds?: { product: string }[];
+  userWishlistIds?: any;
+  cartItemsCount?: number;
   cartId?: string;
   user?: UserI;
   token?: string;

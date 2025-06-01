@@ -2,6 +2,8 @@ import { Document, Schema, model } from "mongoose";
 import { Models } from "../../common/dbModels";
 import { UserI } from "../../interfaces/user.interface";
 import jwt from "jsonwebtoken";
+import { NextFunction } from "express";
+import bcrypt from "bcryptjs";
 const userSchema = new Schema<UserI & Document>(
   {
     name: {
@@ -33,15 +35,5 @@ userSchema.methods.generateToken = function () {
   );
   return token;
 };
-// userSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) return next();
-//   console.log("HABBAhjgasjhkdg askj gdkjasg dsjakdg asjkdhb");
-//   const hashedPassword = await bcrypt.hash(
-//     this.password,
-//     Number(process.env.HASH_SALT)
-//   );
-//   this.password = hashedPassword;
-//   next();
-// });
 const User = model(Models.USER, userSchema);
 export default User;

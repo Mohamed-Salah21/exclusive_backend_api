@@ -1,5 +1,6 @@
-import { Model, Document } from "mongoose";
+import { Model, Types } from "mongoose";
 import Cart from "./cart.model";
+import { Models } from "../../common/dbModels";
 class CartService<CartI> {
   private model;
   constructor(model: Model<CartI>) {
@@ -15,6 +16,9 @@ class CartService<CartI> {
         select: "title price images quantity imageCover",
       });
   }
+  async getLoggedUserCart(userId: string) {
+    const userCart = await this.model.findOne({ cartOwner: userId });
+  }
   async addCart(params: any = {}) {
     const { userId, cartItem, userCart } = params;
     let cart = userCart;
@@ -25,7 +29,10 @@ class CartService<CartI> {
       });
       cart = await cart.populate([
         { path: "cartOwner", select: "name email phone" },
-        { path: "products.product", select: "title price images quantity imageCover" },
+        {
+          path: "products.product",
+          select: "title price images quantity imageCover",
+        },
       ]);
     } else {
       const cItemIndex = cart.products.findIndex(
@@ -49,7 +56,10 @@ class CartService<CartI> {
           { new: true }
         ).populate([
           { path: "cartOwner", select: "name email phone" },
-          { path: "products.product", select: "title price images quantity imageCover" },
+          {
+            path: "products.product",
+            select: "title price images quantity imageCover",
+          },
         ]);
       } else {
         cart.products[cItemIndex].count += cartItem.count;
@@ -72,12 +82,25 @@ class CartService<CartI> {
       )
       .populate([
         { path: "cartOwner", select: "name email phone" },
-        { path: "products.product", select: "title price images quantity imageCover" },
+        {
+          path: "products.product",
+          select: "title price images quantity imageCover",
+        },
       ]);
     const totalPrice = await (Cart as any).calcTotalPrice(cart);
     (cart as any).totalCartPrice = totalPrice;
     await cart?.save();
     return cart;
+  }
+  async getUserCartItemsCount(userId: string) {
+    const cart: any = await this.model
+      .findOne({
+        cartOwner: userId,
+      })
+      .populate("products.product");
+    const cartItems = cart?.products || [];
+    if (!cartItems[0]) return 0;
+    return cart.products.reduce((acc: any, item: any) => acc + item.count, 0);
   }
 }
 export default new CartService(Cart);

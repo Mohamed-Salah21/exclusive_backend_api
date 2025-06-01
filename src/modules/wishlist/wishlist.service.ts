@@ -1,11 +1,20 @@
 import { Document, Model } from "mongoose";
 import Wishlist from "./wishlist.model";
+import { WishlistI } from "../../interfaces/wishlist.interface";
 
 class WishlistServic<T extends Document> {
   private model;
   constructor(model: Model<T>) {
     this.model = model;
   }
+  async getUserWishlistItemsIds(userId: string) {
+    const wishlist: WishlistI | null = await this.model.findOne({
+      customer: userId,
+    });
+    if (!wishlist) return []
+    return wishlist?.items;
+  }
+
   async getUserWishlist(userId: string) {
     return await this.model
       .findOne({
