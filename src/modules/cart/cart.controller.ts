@@ -17,18 +17,27 @@ class CartController {
       select: "title price images quantity imageCover",
     });
     if (!userCart || (userCart && !userCart.products.length)) {
-      ApiResponse(response, Messages.Cart.GE_ALL_FAILED, {
+      let dataRes: any = {
+        totalCartPrice: 0,
+        products: [],
+      };
+      if (userCart && userCart._id) {
+        dataRes.cartId = userCart._id;
+      }
+      ApiResponse(response, Messages.Cart.GET_ALL_SUCCESS, {
         numOfCartItems: 0,
-        data: {
-          products: [],
-          totalCartPrice: 0,
-        },
+        data: dataRes,
       });
       return;
     }
+    const totalPrice = await (Cart as any).calcTotalPrice(userCart);
     ApiResponse(response, Messages.Cart.GET_ALL_SUCCESS, {
       numOfCartItems: userCart.products.length,
-      data: userCart,
+      data: {
+        cartId: userCart._id,
+        totalCartPrice: totalPrice,
+        products: userCart.products,
+      },
     });
   }
 
@@ -55,7 +64,6 @@ class CartController {
     const totalPrice = await (Cart as any).calcTotalPrice(cart);
     ApiResponse(response, Messages.Cart.ADD_ITEM_SUCCESS, {
       numOfCartItems: cart.products.length,
-      cartId: cart._id,
       data: {
         cartId: cart._id,
         totalCartPrice: totalPrice,
@@ -72,7 +80,7 @@ class CartController {
       cartOwner: (request as AuthenticatedRequest).user._id,
     }).populate({
       path: "products.product",
-      select: "title price images quantity",
+      select: "title price images quantity imageCover",
     });
     if (!userCart) {
       return next(
@@ -93,7 +101,12 @@ class CartController {
       userCart.totalCartPrice = totalPrice;
       userCart.save();
       ApiResponse(response, Messages.Cart.UPDATE_QTY_SUCCESS, {
-        data: userCart,
+        numOfCartItems: userCart.products.length,
+        data: {
+          cartId: userCart._id,
+          totalCartPrice: userCart.totalCartPrice,
+          products: userCart.products,
+        },
       });
     }
   }
@@ -112,7 +125,12 @@ class CartController {
       );
     }
     ApiResponse(response, Messages.Cart.REMOVE_ITEM_SUCCESS, {
-      data: userCart,
+      numOfCartItems: userCart.products.length,
+      data: {
+        cartId: userCart._id,
+        totalCartPrice: userCart.totalCartPrice,
+        products: userCart.products,
+      },
     });
   }
   async clearUserCart(
@@ -128,7 +146,14 @@ class CartController {
         new ApiErrorr(Messages.Cart.CEAR_ITEMS_FAILED, StatusCodes.BAD_REQUEST)
       );
     }
-    ApiResponse(response, Messages.Cart.CEAR_ITEMS_SUCCESS);
+    ApiResponse(response, Messages.Cart.CEAR_ITEMS_SUCCESS, {
+      numOfCartItems: 0,
+      data: {
+        cartId: clearedCart._id,
+        totalCartPrice: 0,
+        products: [],
+      },
+    });
   }
 }
 export default new CartController();
