@@ -24,7 +24,7 @@ class CartController {
       if (userCart && userCart._id) {
         dataRes.cartId = userCart._id;
       }
-      ApiResponse(response, Messages.Cart.GET_ALL_SUCCESS, {
+      ApiResponse(response, Messages.Cart.GET_EMPTY_SUCCESS, {
         numOfCartItems: 0,
         data: dataRes,
       });

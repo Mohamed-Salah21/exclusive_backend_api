@@ -37,6 +37,7 @@ export const Messages = {
   },
   Cart: {
     GET_ALL_SUCCESS: "The cart has been fetched successfully",
+    GET_EMPTY_SUCCESS: "The cart has is empty",
     GE_ALL_FAILED: "You cart is empty",
     ADD_ITEM_SUCCESS: "There product is added to cart",
     ADD_ITEM_FAILED: "Error while add product to cart",

@@ -13,19 +13,19 @@ class WishlistServic<T extends Document> {
       })
       .populate([
         { path: "customer", select: "name email phone" },
-        { path: "items", select: "title price images quantity" },
+        { path: "items", select: "title price images quantity imageCover" },
       ]);
   }
-  addItemToWishlist(params: any = {}) {
+  async addItemToWishlist(params: any = {}) {
     const { userId, payload, userWishlist } = params;
     let list = userWishlist;
     if (!list) {
-      list = this.model.create({
+      list = await this.model.create({
         customer: userId,
         items: [payload],
       });
     } else {
-      list = this.model.findOneAndUpdate(
+      list = await this.model.findOneAndUpdate(
         { customer: userId },
         {
           $addToSet: { items: payload },
@@ -33,6 +33,10 @@ class WishlistServic<T extends Document> {
         { new: true }
       );
     }
+    await list.populate([
+      { path: "customer", select: "name email phone" },
+      { path: "items", select: "title price images quantity imageCover" },
+    ]);
     return list;
   }
   async removeItemFromWishlist(params: any = {}) {
@@ -49,7 +53,7 @@ class WishlistServic<T extends Document> {
       )
       .populate([
         { path: "customer", select: "name email phone" },
-        { path: "items", select: "title price images quantity" },
+        { path: "items", select: "title price images quantity imageCover" },
       ]);
     await wishlist?.save();
     return wishlist;

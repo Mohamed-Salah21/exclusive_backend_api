@@ -7,6 +7,8 @@ import ApiErrorr from "../../utils/ApiError";
 import Service from "./wishlist.service";
 import { StatusCodes } from "http-status-codes";
 import Product from "../product/product.model";
+import { WishlistI } from "../../interfaces/wishlist.interface";
+import ApiError from "../../utils/ApiError";
 
 class WishlistController {
   async getUserWishlist(
@@ -42,16 +44,16 @@ class WishlistController {
         new ApiErrorr(Messages.Product.GE_ONE_FAILED, StatusCodes.NOT_FOUND)
       );
     }
-    const buildWishlist = Service.addItemToWishlist({
+    const wishlist: WishlistI = await Service.addItemToWishlist({
       userId: user._id,
       payload: product._id,
       userWishlist,
     });
-    buildWishlist.populate([
-      { path: "customer", select: "name email phone" },
-      { path: "items", select: "title price images quantity" },
-    ]);
-    const wishlist = await buildWishlist;
+    if (!wishlist) {
+      return next(
+        new ApiError(Messages.Wishlist.GE_ALL_FAILED, StatusCodes.BAD_REQUEST)
+      );
+    }
     ApiResponse(response, Messages.Wishlist.ADD_ITEM_SUCCESS, {
       results: wishlist.items.length,
       data: wishlist,
