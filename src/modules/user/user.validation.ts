@@ -5,11 +5,11 @@ class UserValidation {
   changingPass = [
     body("currentPassword")
       .notEmpty()
-      .withMessage(`The current Password is required`),
+      .withMessage(`Current password is required`),
     body("password").notEmpty().withMessage(`Password is required`),
     body("rePassword").custom((value, { req }) => {
       if (value !== req.body.password) {
-        throw new Error("Passwords do not matched");
+        throw new Error("Passwords are not similar");
       }
       return true;
     }),
@@ -30,12 +30,12 @@ class UserValidation {
       .notEmpty()
       .withMessage("Name is required")
       .isLength({ min: 3 })
-      .withMessage("Short name"),
+      .withMessage("Name must be greater then or equal 3"),
     body("email")
       .notEmpty()
       .withMessage("Email is required")
       .isEmail()
-      .withMessage("Enter valid email")
+      .withMessage("Email is invalid")
       .custom(async (value, { req }) => {
         const findUser = await User.findOne({
           $and: [{ email: { $ne: req.user.email } }, { email: value }],
@@ -47,7 +47,7 @@ class UserValidation {
       .notEmpty()
       .withMessage("Phone is required")
       .isLength({ min: 3 })
-      .withMessage("Short phone"),
+      .withMessage("Phone must be greater then or equal 3"),
     validatorMdlwr,
   ];
 }

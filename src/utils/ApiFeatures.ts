@@ -76,5 +76,8 @@ class ApiFeatures<T extends Document> {
     this.mongooseQuery.limit(limit).skip(skip);
     return this;
   }
+  async getFilteredCount() {
+    return await this.mongooseQuery.clone().countDocuments();
+  }
 }
 export default ApiFeatures;

@@ -38,30 +38,27 @@ const getAll =
       );
       return;
     }
-    const countDouments = await model.countDocuments();
-    const { mongooseQuery, paginationResult } = new ApiFeatures(
-      model,
-      request.query
-    )
+    const apiFeatures = new ApiFeatures(model, request.query)
       .filteration()
       .selection()
       .sorting()
       .population()
-      .searching()
-      .pagination(countDouments);
+      .searching();
+    const filteredCount = await apiFeatures.getFilteredCount();
+    apiFeatures.pagination(filteredCount);
     if (findOptions?.selectedFields) {
-      mongooseQuery.select(findOptions.selectedFields);
+      apiFeatures.mongooseQuery.select(findOptions.selectedFields);
     }
     if (findOptions?.populatedFields) {
-      mongooseQuery.populate(findOptions.populatedFields);
+      apiFeatures.mongooseQuery.populate(findOptions.populatedFields);
     }
-    const documents: T[] = await mongooseQuery;
+    const documents: T[] = await apiFeatures.mongooseQuery;
     ApiResponse(
       response,
       (Messages as Record<string, any>)[modelName].GET_ALL_SUCCESS,
       {
         results: documents.length,
-        metadata: paginationResult,
+        metadata: apiFeatures.paginationResult,
         data: documents,
       }
     );

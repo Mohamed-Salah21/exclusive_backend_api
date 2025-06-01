@@ -5,6 +5,7 @@ import globalErrorHandlerMdlwr from "./src/middlewars/globalErrorHandler.middlew
 import mountRoutes from "./src/mounts";
 import morgan from "morgan";
 import cors from "cors";
+
 dotenv.config();
 
 const app: express.Application = express();
