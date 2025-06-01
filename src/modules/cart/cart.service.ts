@@ -1,7 +1,5 @@
-import { CartI } from "../../interfaces/CartI.interface";
 import { Model, Document } from "mongoose";
 import Cart from "./cart.model";
-import { request } from "express";
 class CartService<CartI> {
   private model;
   constructor(model: Model<CartI>) {
@@ -14,7 +12,7 @@ class CartService<CartI> {
       })
       .populate({
         path: "products.product",
-        select: "title price images quantity",
+        select: "title price images quantity imageCover",
       });
   }
   async addCart(params: any = {}) {
@@ -27,7 +25,7 @@ class CartService<CartI> {
       });
       cart = await cart.populate([
         { path: "cartOwner", select: "name email phone" },
-        { path: "products.product", select: "title price images quantity" },
+        { path: "products.product", select: "title price images quantity imageCover" },
       ]);
     } else {
       const cItemIndex = cart.products.findIndex(
@@ -44,13 +42,14 @@ class CartService<CartI> {
                 product: cartItem.product,
                 count: cartItem.count,
                 price: cartItem.price,
+                imageCover: cartItem.imageCover,
               },
             },
           },
           { new: true }
         ).populate([
           { path: "cartOwner", select: "name email phone" },
-          { path: "products.product", select: "title price images quantity" },
+          { path: "products.product", select: "title price images quantity imageCover" },
         ]);
       } else {
         cart.products[cItemIndex].count += cartItem.count;
@@ -73,7 +72,7 @@ class CartService<CartI> {
       )
       .populate([
         { path: "cartOwner", select: "name email phone" },
-        { path: "products.product", select: "title price images quantity" },
+        { path: "products.product", select: "title price images quantity imageCover" },
       ]);
     const totalPrice = await (Cart as any).calcTotalPrice(cart);
     (cart as any).totalCartPrice = totalPrice;

@@ -2,8 +2,6 @@ import { Document, Schema, model } from "mongoose";
 import { Models } from "../../common/dbModels";
 import { UserI } from "../../interfaces/user.interface";
 import jwt from "jsonwebtoken";
-import { NextFunction } from "express";
-import bcrypt from "bcryptjs";
 const userSchema = new Schema<UserI & Document>(
   {
     name: {

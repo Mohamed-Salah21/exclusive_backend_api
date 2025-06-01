@@ -20,7 +20,7 @@ type Data = {
 
 const ApiResponse = (response: Response, message: string, data?: Data) =>
   response.status(StatusCodes.OK).json({
-    status: true,
+    status: "success",
     message,
     ...data,
   });

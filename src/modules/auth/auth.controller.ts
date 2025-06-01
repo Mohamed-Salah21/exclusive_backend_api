@@ -11,7 +11,7 @@ class AuthController {
   async signup(request: Request, response: Response, next: NextFunction) {
     const user: any = await User.findOne({
       email: request.body.email,
-    }).select("+password");
+    });
     if (user) {
       return next(
         new ApiError(Messages.Auth.SIGNUP_FAILED, StatusCodes.NOT_FOUND)
@@ -38,15 +38,17 @@ class AuthController {
         expiresIn: process.env.JWT_EXPIRE_TOKEN as any,
       }
     );
+    const { password, createdAt, updatedAt, __v, ...safeUser } =
+      document.toObject();
     ApiResponse(response, msg, {
       token,
-      user: document,
+      user: safeUser,
     });
   }
   async signin(request: Request, response: Response, next: NextFunction) {
     const user: any = await User.findOne({
       email: request.body.email,
-    }).select("+password");
+    });
     const isMatchPass = await bcrypt.compare(
       request.body.password,
       user?.password || ""
@@ -65,9 +67,10 @@ class AuthController {
     );
     let configMsg = Messages.Auth.SIGNIN_SUCCESS.split(",");
     const msg = configMsg[0] + " " + user.name + configMsg[1];
+    const { __v, password, createdAt, updatedAt, ...safeUser } = user.toObject();
     ApiResponse(response, msg, {
       token,
-      user,
+      user: safeUser,
     });
   }
 }

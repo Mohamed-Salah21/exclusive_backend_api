@@ -3,7 +3,9 @@ import { getAll, getById } from "../factory/factory.controller";
 import Product from "./product.model";
 
 class ProductController {
-  getAllProducts = getAll(Product, Models.PRODUCT);
+  getAllProducts = getAll(Product, Models.PRODUCT, {
+    populatedFields: "category",
+  });
   getProductById = getById(Product, Models.PRODUCT);
 }
 

@@ -14,7 +14,7 @@ class CartController {
       cartOwner: (request as AuthenticatedRequest).user._id,
     }).populate({
       path: "products.product",
-      select: "title price images quantity",
+      select: "title price images quantity imageCover",
     });
     if (!userCart || (userCart && !userCart.products.length)) {
       ApiResponse(response, Messages.Cart.GE_ALL_FAILED, {
@@ -27,7 +27,7 @@ class CartController {
       return;
     }
     ApiResponse(response, Messages.Cart.GET_ALL_SUCCESS, {
-      results: userCart.products.length,
+      numOfCartItems: userCart.products.length,
       data: userCart,
     });
   }
@@ -48,6 +48,7 @@ class CartController {
         product: product._id,
         price: product?.price || 10,
         count: +request.body.count || 1,
+        imageCover: product?.imageCover || "default.png",
       },
     });
     const cart = await buildCart;

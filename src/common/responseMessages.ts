@@ -33,7 +33,7 @@ export const Messages = {
     SIGNIN_SUCCESS: "Hello, you have successfully logged in.",
     SIGNUP_SUCCESS: "Wellcome,in our system",
     SIGNIN_FAILED: "Invalid Email or Password",
-    SIGNUP_FAILED: "Email is already used",
+    SIGNUP_FAILED: "Email is already used before",
   },
   Cart: {
     GET_ALL_SUCCESS: "The cart has been fetched successfully",
