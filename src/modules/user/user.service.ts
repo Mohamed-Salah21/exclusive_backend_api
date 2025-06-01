@@ -8,9 +8,6 @@ class UserService<UserI> {
   constructor(model: Model<UserI>) {
     this.model = model;
   }
-  async getMyWishlistIds(userId: string) {
-    return await wishlistService.getUserWishlistItemsIds(userId);
-  }
   async getMyCartItemsCount(userId: string) {
     return await cartService.getUserCartItemsCount(userId);
   }

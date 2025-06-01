@@ -4,11 +4,8 @@ import ApiError from "../../utils/ApiError";
 import ApiResponse from "../../utils/ApiResponse";
 import { Messages } from "../../common/responseMessages";
 import { StatusCodes } from "http-status-codes";
-import wishlistService from "../wishlist/wishlist.service";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import Wishlist from "../wishlist/wishlist.model";
-import userService from "../user/user.service";
 class AuthController {
   async signup(request: Request, response: Response, next: NextFunction) {
     const user: any = await User.findOne({
@@ -16,7 +13,7 @@ class AuthController {
     });
     if (user) {
       return next(
-        new ApiError(Messages.Auth.SIGNUP_FAILED, StatusCodes.NOT_FOUND)
+        new ApiError(Messages.Auth.SIGNUP_FAILED, StatusCodes.BAD_REQUEST)
       );
     }
 
@@ -72,13 +69,9 @@ class AuthController {
     const msg = configMsg[0] + " " + user.name + configMsg[1];
     const { __v, password, createdAt, updatedAt, ...safeUser } =
       user.toObject();
-    const userWishlistItemsIds = await userService.getMyWishlistIds(user._id);
-    const cartItemsCount: any = await userService.getMyCartItemsCount(user._id);
     ApiResponse(response, msg, {
       token,
       user: safeUser,
-      cartItemsCount,
-      userWishlistItemsIds,
     });
   }
 }

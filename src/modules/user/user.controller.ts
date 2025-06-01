@@ -45,6 +45,5 @@ class UserController {
     );
     ApiResponse(response, Messages.User.CHANGE_PASSWORD_SUCCESS);
   }
-  
 }
 export default new UserController();
